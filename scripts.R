@@ -6,4 +6,6 @@ manhattan1 %>% add_count(CMPLNT_FR_DT)
 library(chron)
 # ex: as.Date('1915-6-16') [1] "1915-06-16"
 # counting the number of crimes per day
-manhattn_perday<- count(manhattan1, CMPLNT_FR_DT)
+manhattan_perday<- count(manhattan1, CMPLNT_FR_DT)
+# change per day counting days to Date format and order them
+manhattan_perday<-manhattan_perday%>% mutate(date = as.Date(CMPLNT_FR_DT, format = '%m/%d/%Y')) %>% arrange(date)

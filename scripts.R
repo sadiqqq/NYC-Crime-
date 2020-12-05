@@ -9,3 +9,8 @@ library(chron)
 manhattan_perday<- count(manhattan1, CMPLNT_FR_DT)
 # change per day counting days to Date format and order them
 manhattan_perday<-manhattan_perday%>% mutate(date = as.Date(CMPLNT_FR_DT, format = '%m/%d/%Y')) %>% arrange(date)
+# incident dummy source into r 
+library("readxl")
+dummy<- read.csv("Book1.csv")
+# make Manhattan data(6000) compatible with main data that has more that 7000 entries
+dummy$nprime <- ifelse(dummy$date %in% manhattan_perday$date,manhattan_perday$n,0)

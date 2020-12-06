@@ -12,5 +12,10 @@ manhattan_perday<-manhattan_perday%>% mutate(date = as.Date(CMPLNT_FR_DT, format
 # incident dummy source into r 
 library("readxl")
 dummy<- read.csv("Book1.csv")
+# shorten and limit both manhattan and dummy datasets to after 2006
+dummy_06<- filter(dummy, date >= "2006-01-01")
+manhattan_perday06<- filter(manhattan_perday, date >= "2006-01-01" )
+
 # make Manhattan data(6000) compatible with main data that has more that 7000 entries
 dummy$nprime <- ifelse(dummy$date %in% manhattan_perday$date,manhattan_perday$n,0)
+# now my variables for regression are nprimee counting of dauily crime in Manhattan since 2006 & Newdummyconditional( which is 1 when an incident occured) 

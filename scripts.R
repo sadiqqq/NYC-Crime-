@@ -41,8 +41,13 @@ a<-seq(632317,1052144, by=32294)
 #then using rep function fill in the white pop variable
 fixed_effects$whitepop<-rep(a,each = 365)
 
+# assigning black population variable and using two seqences representingg two trends before and after 2010 in black population
 
+fixed_effects<- mutate(fixed_effects, blackpop= 1 )
+a<- c(seq(217070,205340, by = -2932),seq(214736,289909, by = 9396))
+fixed_effects$blackpop<-rep(a,each = 365)
 
-
-
-
+# the same repeated for hispanic origins
+fixed_effects<- mutate(fixed_effects, hispanicpop =1)
+a<- c(seq(409272,403577, by = -1423),seq(405062,416949, by = 1485))
+fixed_effects$hispanicpop<-rep(a,each = 365)

@@ -30,6 +30,8 @@ dummy$nprime <- ifelse(dummy$date %in% manhattan_perday$date,manhattan_perday$n,
 fixed_effects$totalpopulation<-ifelse(grepl("2006", fixed_effects$date), 1566403,fixed_effects$totalpopulation
 # 1566403+4868 yearly increase from 2006 to 2010.....
 
+
+
 # white population variable created
 fixed_effects<- mutate(fixed_effects, whitepop= 1 )
 
@@ -51,3 +53,49 @@ fixed_effects$blackpop<-rep(a,each = 365)
 fixed_effects<- mutate(fixed_effects, hispanicpop =1)
 a<- c(seq(409272,403577, by = -1423),seq(405062,416949, by = 1485))
 fixed_effects$hispanicpop<-rep(a,each = 365)
+
+# web scraping
+man_census<-read_html(url("https://www.census.gov/quickfacts/newyorkcountymanhattanboroughnewyork","rb"))
+highhtml<-html_nodes(man_census,"span")
+hightitle<-html_text(highhtml)
+valuehtml<- html_nodes(man_census,"td")
+> highvalue<-html_text(valuehtml)
+
+# High grad & college grad & povertyrate& median incomevariables created
+fixed_effects<- mutate(fixed_effects, highgrad=1)
+fixed_effects$highgrad<- rep(c(0.846,0.846,0.846,0.846,0.846,0.849,0.846,0.85,0.855,0.86,0.87,0.87,0.87,0.87), each = 365)
+fixed_effects$collegegrad<- rep(c(0.57,0.57,0.57,0.57,0.57,0.577,0.57,0.57,0.581,0.589,0.608,0.608,0.608,0.608), each = 365)
+fixed_effects$povertyrate<- rep(c(0.186,0.188,0.188,0.177,0.169,0.166,0.178,0.176,0.175,0.177,0.141,0.141,0.141,0.141), each = 365)
+fixed_effects$medianincome<- rep(c(43573,45290,45290,63704,68402,68295,64971,67204,68370,69659,82459,82459,82459,82459), each = 365)
+
+
+manreg<-lm( dummy_06$nprime ~ dummy_06$NewdummyConditional + fixed_effects$totalpopulation+fixed_effects$whitepop+fixed_effects$blackpop+fixed_effects$hispanicpop+ fixed_effects$highgrad+fixed_effects$collegegrad+fixed_effects$totalpopulation+fixed_effects$povertyrate+fixed_effects$medianincome)
+summary(manreg) # there would be a problem!!!! I will go for poisson regression
+
+
+
+
+
+# I restricted my scope to 2014-2018. First create a dummmy for brutality intense months
+
+citywidedummy<-append(citywidedummy,h), h<- rep(0,25)
+
+# make manhattan fixed effects short and compatible with citywide dummy
+# all datasets are restricted to 1825 observations and fixed effect vector is made for all boroughs
+man_fixed<- man_fixed[-(1826)]
+man_fixed<- man_fixed[-(1826),]
+citywidedummy<- citywidedummy[-(1826),]
+brook_fixed<- man_fixed
+
+#  Brooklyn:
+
+brook_fixed$totalpopulation<- rep(seq(2543764,2582830, by = 9766),each = 365)
+ brook_fixed$whitepop<- rep(seq(1238866,1278500, by = 7962),each = 365)
+ brook_fixed$blackpop<- 880745
+ brook_fixed$hispanicpop<- 493320
+ brook_fixed$highgrad<- rep(c(.807,.807, .824,.824,.824),each = 365)
+ brook_fixed$collegegrad<- rep(c(.352,.352, .375,.375,.375),each = 365)
+ View(brook_fixed)
+ brook_fixed$povertyrate<- rep(c(.198,.198, .178,.178,.178),each = 365)
+ brook_fixed$medianincome<- rep(c(52782,52782, 60231,60231,60231),each = 365)
+ 

@@ -87,7 +87,7 @@ man_fixed<- man_fixed[-(1826),]
 citywidedummy<- citywidedummy[-(1826),]
 brook_fixed<- man_fixed
 
-#  Brooklyn:
+#  Brooklyn F.E.s:
 
 brook_fixed$totalpopulation<- rep(seq(2543764,2582830, by = 9766),each = 365)
  brook_fixed$whitepop<- rep(seq(1238866,1278500, by = 7962),each = 365)
@@ -99,3 +99,33 @@ brook_fixed$totalpopulation<- rep(seq(2543764,2582830, by = 9766),each = 365)
  brook_fixed$povertyrate<- rep(c(.198,.198, .178,.178,.178),each = 365)
  brook_fixed$medianincome<- rep(c(52782,52782, 60231,60231,60231),each = 365)
  
+ # Brooklyn counts:
+ # Total crime
+ brooklyn1<- filter(crime_data, BORO_NM == "BROOKLYN")
+ brooklyn1<- count(brooklyn1, CMPLNT_FR_DT)
+ brooklyn1<-brooklyn1%>% mutate(date = as.Date(CMPLNT_FR_DT, format = '%m/%d/%Y')) %>% arrange(date
+ brooklyn1<-filter(brooklyn1, date >= "2014-01-01" & date <="2018-12-30")
+ brooklyncounts<-brook_fixed
+ brooklyncounts$totalcrime<-ifelse(  brooklyncounts$date %in% brooklyn1$date,brooklyn1$n,0)
+ brooklyncounts<-brooklyncounts[-c(2:9)]
+ 
+ # Misdemeanor crime
+  brooklyn1<- filter(crime_data, BORO_NM == "BROOKLYN" & LAW_CAT_CD == "MISDEMEANOR")
+  brooklyn1<- count(brooklyn1, CMPLNT_FR_DT)
+  brooklyn1<-brooklyn1%>% mutate(date = as.Date(CMPLNT_FR_DT, format = '%m/%d/%Y')) %>% arrange(date)
+  brooklyn1<-filter(brooklyn1, date >= "2014-01-01" & date <="2018-12-30")
+  brooklyncounts$misdemeanor<-ifelse(  brooklyncounts$date %in% brooklyn1$date,brooklyn1$n,0)
+  
+  # same code repeated for felony, violent crime and black crime
+  
+  # Manhattan counts: total, mis, felony, black
+  manhattan1<- filter(crime_data, BORO_NM == "MANHATTAN")
+  manhattan1<- count(manhattan1, CMPLNT_FR_DT)
+  manhattan1<-manhattan1%>% mutate(date = as.Date(CMPLNT_FR_DT, format = '%m/%d/%Y')) %>% arrange(date)
+  manhattan1<-filter(manhattan1, date >= "2014-01-01" & date <="2018-12-30")
+  manhattancounts<-brooklyncounts
+  manhattancounts$totalcrime<-ifelse(  manhattancounts$date %in% manhattan1$date,manhattan1$n,0)
+  
+  # the bronx, queens, staten island counts...
+  
+  

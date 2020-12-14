@@ -127,5 +127,83 @@ brook_fixed$totalpopulation<- rep(seq(2543764,2582830, by = 9766),each = 365)
   manhattancounts$totalcrime<-ifelse(  manhattancounts$date %in% manhattan1$date,manhattan1$n,0)
   
   # the bronx, queens, staten island counts...
+  # F.E.s for all remained boroughs have been created
   
+  # binding all boroughs counts into one single data frame
+  counts<- rbind(manhattancounts,brooklyncounts,bronxcounts,queenscounts,statencounts)
+  
+  # brutality intense month created
+  intensedummy<- as.data.frame(rep(citywidedummy, times = 5))
+  
+  # First stage Poisson regression using this formula
+  firststagereg<-glm(formula = counts$blackcrime ~ intensedummy$`rep(citywidedummy, times = 5)`,
+                     +              family = poisson)
+  summary(firststagereg)
+  
+  # all estimates significant at 1% level
+  # Second stage poisson regression includinf demographic fixed effects
+  secondstagereg<-glm(formula = counts$blackcrime ~ intensedummy$`rep(citywidedummy, times = 5)` + demog_fixed$totalpopulation+ demog_fixed$whitepop + demog_fixed$blackpop+ demog_fixed$hispanicpop + demog_fixed$highgrad + demog_fixed$collegegrad + demog_fixed$povertyrate + demog_fixed$medianincome, family = poisson)
+  summary(secondstagereg)
+  # still significant estimates but lesser magnitudes
+  
+  # new dummy
+  
+  citywidedummy1<- rep(c(0,0,1,0,0,0,1,1,0,1,0,0  ,0,0,0,1,1,0,1,1,0,0,1,0,  0,1,0,1,0,0,0,0,1,1,0,0,  0,1,0,1,0,1,1,0,0,0,1,0,  0,0,1,0,1,1,0,0,0,0,0,0), each =30)
+  citywidedummy1<- rep(c(), each =30),, citywidedummy<-append(citywidedummy,h), h<- rep(0,25)
+  
+  
+  # borough fixed effects created
+  borough_fixed<- counts
+  borough_fixed<-borough_fixed %>% rename( manhattan = totalcrime, brooklyn = misdemeanor, bronx = felony, queens = violation, staten = blackcrime)
+  borough_fixed$manhattan<- 0
+  borough_fixed$manhattan[1:1825]<- 1
+  borough_fixed$brooklyn<- 0
+  borough_fixed$brooklyn[1826:3650]<- 1
+  borough_fixed$bronx<- 0
+  borough_fixed$bronx[3651:5475]<- 1
+  borough_fixed$queens<- 0
+  borough_fixed$queens[5476:7300]<- 1
+  borough_fixed$staten<- 0
+  borough_fixed$staten[7301:9125]<- 1
+  
+ # Second Stage regression with borough F.E.s
+  secondstagereg<-glm(formula = counts$blackcrime ~ intensedummy1$citywidedummy1 + demog_fixed$totalpopulation+ demog_fixed$whitepop + demog_fixed$blackpop+ demog_fixed$hispanicpop + demog_fixed$highgrad + demog_fixed$collegegrad + demog_fixed$povertyrate + demog_fixed$medianincome  + borough_fixed$manhattan + borough_fixed$brooklyn+ borough_fixed$bronx+ borough_fixed$queens+ borough_fixed$staten, family = poisson)
+  summary(secondstagereg)
+  
+  
+  
+   # year fixed effects created
+  year_fixed<- counts
+  year_fixed$`2014`<- 0
+   
+  
+   
+  year_fixed$`2014`<- ifelse(grepl("2014", year_fixed$date), 1, year_fixed$`2014`)
+   
+  year_fixed$`2015`<- 0
+  year_fixed$`2015`<- ifelse(grepl("2015", year_fixed$date), 1, year_fixed$`2015`)
+   
+  year_fixed$`2016`<- 0
+  year_fixed$`2016`<- ifelse(grepl("2016", year_fixed$date), 1, year_fixed$`2016`)
+   
+  year_fixed$`2017`<- 0
+  year_fixed$`2017`<- ifelse(grepl("2017", year_fixed$date), 1, year_fixed$`2017`)
+   
+  year_fixed$`2018`<- 0
+  year_fixed$`2018`<- ifelse(grepl("2018", year_fixed$date), 1, year_fixed$`2018`)
+  
+  
+  # third stage regression with year_fixed
+  thirdstagereg<-glm(formula = counts$blackcrime ~ intensedummy1$citywidedummy1 + demog_fixed$totalpopulation+ demog_fixed$whitepop + demog_fixed$blackpop+ demog_fixed$hispanicpop + demog_fixed$highgrad + demog_fixed$collegegrad + demog_fixed$povertyrate + demog_fixed$medianincome  + borough_fixed$manhattan + borough_fixed$brooklyn+ borough_fixed$bronx+ borough_fixed$queens+ borough_fixed$staten +  year_fixed$`2014`+  year_fixed$`2015`+  year_fixed$`2016`+  year_fixed$`2017`+  year_fixed$`2018`, family = poisson)
+  summary(thirdstagereg)
+  
+  # week F.E.s
+  week_fixed<-week_fixed[-c(6)]
+  week<-rep(c(1 ,1, 1, 1, 1, 1, 1,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), times= 325)
+  week<- append(week,c(1 ,1, 1, 1, 1, 1, 1,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+  week_fixed$week1<- week
+ 
+   # third stage regression with year_fixed & week_fixed
+  thirdstagereg<-glm(formula = counts$blackcrime ~ intensedummy1$citywidedummy1 + demog_fixed$totalpopulation+ demog_fixed$whitepop + demog_fixed$blackpop+ demog_fixed$hispanicpop + demog_fixed$highgrad + demog_fixed$collegegrad + demog_fixed$povertyrate + demog_fixed$medianincome  + borough_fixed$manhattan + borough_fixed$brooklyn+ borough_fixed$bronx+ borough_fixed$queens+ borough_fixed$staten +  year_fixed$`2014`+  year_fixed$`2015`+  year_fixed$`2016`+  year_fixed$`2017`+  year_fixed$`2018`+ week_fixed$week1+ week_fixed$week2+ week_fixed$week3, family = poisson)
+  summary(thirdstagereg)
   
